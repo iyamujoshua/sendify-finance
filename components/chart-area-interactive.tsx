@@ -1,300 +1,352 @@
 "use client"
 
 import * as React from "react"
-import { Area, AreaChart, CartesianGrid, XAxis } from "recharts"
+import { Area, AreaChart, CartesianGrid, XAxis, YAxis, Tooltip, ResponsiveContainer } from "recharts"
+import { Card } from "@/components/ui/card"
+import { HugeiconsIcon } from "@hugeicons/react"
+import { ChevronDownIcon, ArrowRight01Icon } from "@hugeicons/core-free-icons"
+import {
+  DropdownMenu,
+  DropdownMenuTrigger,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuSeparator,
+  DropdownMenuLabel,
+  DropdownMenuGroup,
+} from "@/components/ui/dropdown-menu"
+import gsap from "gsap"
 
-import { useIsMobile } from "@/hooks/use-mobile"
-import {
-  Card,
-  CardAction,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card"
-import {
-  ChartContainer,
-  ChartTooltip,
-  ChartTooltipContent,
-  type ChartConfig,
-} from "@/components/ui/chart"
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select"
-import {
-  ToggleGroup,
-  ToggleGroupItem,
-} from "@/components/ui/toggle-group"
-
-export const description = "An interactive area chart"
-
-const chartData = [
-  { date: "2024-04-01", desktop: 222, mobile: 150 },
-  { date: "2024-04-02", desktop: 97, mobile: 180 },
-  { date: "2024-04-03", desktop: 167, mobile: 120 },
-  { date: "2024-04-04", desktop: 242, mobile: 260 },
-  { date: "2024-04-05", desktop: 373, mobile: 290 },
-  { date: "2024-04-06", desktop: 301, mobile: 340 },
-  { date: "2024-04-07", desktop: 245, mobile: 180 },
-  { date: "2024-04-08", desktop: 409, mobile: 320 },
-  { date: "2024-04-09", desktop: 59, mobile: 110 },
-  { date: "2024-04-10", desktop: 261, mobile: 190 },
-  { date: "2024-04-11", desktop: 327, mobile: 350 },
-  { date: "2024-04-12", desktop: 292, mobile: 210 },
-  { date: "2024-04-13", desktop: 342, mobile: 380 },
-  { date: "2024-04-14", desktop: 137, mobile: 220 },
-  { date: "2024-04-15", desktop: 120, mobile: 170 },
-  { date: "2024-04-16", desktop: 138, mobile: 190 },
-  { date: "2024-04-17", desktop: 446, mobile: 360 },
-  { date: "2024-04-18", desktop: 364, mobile: 410 },
-  { date: "2024-04-19", desktop: 243, mobile: 180 },
-  { date: "2024-04-20", desktop: 89, mobile: 150 },
-  { date: "2024-04-21", desktop: 137, mobile: 200 },
-  { date: "2024-04-22", desktop: 224, mobile: 170 },
-  { date: "2024-04-23", desktop: 138, mobile: 230 },
-  { date: "2024-04-24", desktop: 387, mobile: 290 },
-  { date: "2024-04-25", desktop: 215, mobile: 250 },
-  { date: "2024-04-26", desktop: 75, mobile: 130 },
-  { date: "2024-04-27", desktop: 383, mobile: 420 },
-  { date: "2024-04-28", desktop: 122, mobile: 180 },
-  { date: "2024-04-29", desktop: 315, mobile: 240 },
-  { date: "2024-04-30", desktop: 454, mobile: 380 },
-  { date: "2024-05-01", desktop: 165, mobile: 220 },
-  { date: "2024-05-02", desktop: 293, mobile: 310 },
-  { date: "2024-05-03", desktop: 247, mobile: 190 },
-  { date: "2024-05-04", desktop: 385, mobile: 420 },
-  { date: "2024-05-05", desktop: 481, mobile: 390 },
-  { date: "2024-05-06", desktop: 498, mobile: 520 },
-  { date: "2024-05-07", desktop: 388, mobile: 300 },
-  { date: "2024-05-08", desktop: 149, mobile: 210 },
-  { date: "2024-05-09", desktop: 227, mobile: 180 },
-  { date: "2024-05-10", desktop: 293, mobile: 330 },
-  { date: "2024-05-11", desktop: 335, mobile: 270 },
-  { date: "2024-05-12", desktop: 197, mobile: 240 },
-  { date: "2024-05-13", desktop: 197, mobile: 160 },
-  { date: "2024-05-14", desktop: 448, mobile: 490 },
-  { date: "2024-05-15", desktop: 473, mobile: 380 },
-  { date: "2024-05-16", desktop: 338, mobile: 400 },
-  { date: "2024-05-17", desktop: 499, mobile: 420 },
-  { date: "2024-05-18", desktop: 315, mobile: 350 },
-  { date: "2024-05-19", desktop: 235, mobile: 180 },
-  { date: "2024-05-20", desktop: 177, mobile: 230 },
-  { date: "2024-05-21", desktop: 82, mobile: 140 },
-  { date: "2024-05-22", desktop: 81, mobile: 120 },
-  { date: "2024-05-23", desktop: 252, mobile: 290 },
-  { date: "2024-05-24", desktop: 294, mobile: 220 },
-  { date: "2024-05-25", desktop: 201, mobile: 250 },
-  { date: "2024-05-26", desktop: 213, mobile: 170 },
-  { date: "2024-05-27", desktop: 420, mobile: 460 },
-  { date: "2024-05-28", desktop: 233, mobile: 190 },
-  { date: "2024-05-29", desktop: 78, mobile: 130 },
-  { date: "2024-05-30", desktop: 340, mobile: 280 },
-  { date: "2024-05-31", desktop: 178, mobile: 230 },
-  { date: "2024-06-01", desktop: 178, mobile: 200 },
-  { date: "2024-06-02", desktop: 470, mobile: 410 },
-  { date: "2024-06-03", desktop: 103, mobile: 160 },
-  { date: "2024-06-04", desktop: 439, mobile: 380 },
-  { date: "2024-06-05", desktop: 88, mobile: 140 },
-  { date: "2024-06-06", desktop: 294, mobile: 250 },
-  { date: "2024-06-07", desktop: 323, mobile: 370 },
-  { date: "2024-06-08", desktop: 385, mobile: 320 },
-  { date: "2024-06-09", desktop: 438, mobile: 480 },
-  { date: "2024-06-10", desktop: 155, mobile: 200 },
-  { date: "2024-06-11", desktop: 92, mobile: 150 },
-  { date: "2024-06-12", desktop: 492, mobile: 420 },
-  { date: "2024-06-13", desktop: 81, mobile: 130 },
-  { date: "2024-06-14", desktop: 426, mobile: 380 },
-  { date: "2024-06-15", desktop: 307, mobile: 350 },
-  { date: "2024-06-16", desktop: 371, mobile: 310 },
-  { date: "2024-06-17", desktop: 475, mobile: 520 },
-  { date: "2024-06-18", desktop: 107, mobile: 170 },
-  { date: "2024-06-19", desktop: 341, mobile: 290 },
-  { date: "2024-06-20", desktop: 408, mobile: 450 },
-  { date: "2024-06-21", desktop: 169, mobile: 210 },
-  { date: "2024-06-22", desktop: 317, mobile: 270 },
-  { date: "2024-06-23", desktop: 480, mobile: 530 },
-  { date: "2024-06-24", desktop: 132, mobile: 180 },
-  { date: "2024-06-25", desktop: 141, mobile: 190 },
-  { date: "2024-06-26", desktop: 434, mobile: 380 },
-  { date: "2024-06-27", desktop: 448, mobile: 490 },
-  { date: "2024-06-28", desktop: 149, mobile: 200 },
-  { date: "2024-06-29", desktop: 103, mobile: 160 },
-  { date: "2024-06-30", desktop: 446, mobile: 400 },
+const currencies = [
+  { code: "GBP", name: "Pound Sterling", symbol: "£" },
+  { code: "IDR", name: "Rupiah", symbol: "Rp " },
+  { code: "NGN", name: "Nigerian Naira", symbol: "₦" },
+  { code: "EUR", name: "Euro", symbol: "€" },
+  { code: "JPY", name: "Yen", symbol: "¥" },
+  { code: "AUD", name: "Australian Dollar", symbol: "A$ " },
+  { code: "CAD", name: "Canadian Dollar", symbol: "C$ " },
+  { code: "SGD", name: "Singapore Dollar", symbol: "S$ " },
+  { code: "CHF", name: "Swiss Franc", symbol: "CHF " },
+  { code: "CNY", name: "Chinese Yuan", symbol: "¥" },
+  { code: "HKD", name: "Hong Kong Dollar", symbol: "HK$ " },
+  { code: "INR", name: "Indian Rupee", symbol: "₹" },
+  { code: "KRW", name: "South Korean Won", symbol: "₩" },
+  { code: "MXN", name: "Mexican Peso", symbol: "Mex$ " },
+  { code: "NZD", name: "New Zealand Dollar", symbol: "NZ$ " },
+  { code: "BRL", name: "Brazilian Real", symbol: "R$ " },
+  { code: "ZAR", name: "South African Rand", symbol: "R " },
 ]
 
-const chartConfig = {
-  visitors: {
-    label: "Total Transactions",
-  },
-  desktop: {
-    label: "Fiat Inflow ($)",
-    color: "var(--primary)",
-  },
-  mobile: {
-    label: "Asset Outflow ($)",
-    color: "var(--chart-2)",
-  },
-} satisfies ChartConfig
+const assetHoldings = [
+  { id: "bitcoin", name: "Bitcoin", amount: 0.4, symbol: "BTC", dotColor: "bg-emerald-800", barColor: "bg-emerald-800" },
+  { id: "ethereum", name: "Ethereum", amount: 2.3, symbol: "ETH", dotColor: "bg-emerald-600", barColor: "bg-emerald-600" },
+  { id: "solana", name: "Solana", amount: 30.0, symbol: "SOL", dotColor: "bg-[#c5e3a5]", barColor: "bg-[#c5e3a5]" },
+  { id: "cardano", name: "Cardano", amount: 500.0, symbol: "ADA", dotColor: "bg-yellow-500", barColor: "bg-yellow-500" },
+  { id: "tether", name: "Tether", amount: 1200.0, symbol: "USDT", dotColor: "bg-orange-500", barColor: "bg-orange-500" },
+]
 
 export function ChartAreaInteractive() {
-  const isMobile = useIsMobile()
-  const [timeRange, setTimeRange] = React.useState("90d")
+  const containerRef = React.useRef<HTMLDivElement>(null)
+  const [timeRange, setTimeRange] = React.useState("1W")
+  const [targetCurrency, setTargetCurrency] = React.useState(currencies[0])
+  const [liveRate, setLiveRate] = React.useState(15824)
+  const [exchangeRates, setExchangeRates] = React.useState<Record<string, number>>({})
+  const [currencySearchQuery, setCurrencySearchQuery] = React.useState("")
 
-  React.useEffect(() => {
-    if (isMobile) {
-      setTimeRange("7d")
-    }
-  }, [isMobile])
+  const filteredCurrencies = React.useMemo(() => {
+    return currencies.filter((curr) =>
+      curr.name.toLowerCase().includes(currencySearchQuery.toLowerCase()) ||
+      curr.code.toLowerCase().includes(currencySearchQuery.toLowerCase())
+    )
+  }, [currencySearchQuery])
 
-  const filteredData = chartData.filter((item) => {
-    const date = new Date(item.date)
-    const referenceDate = new Date("2024-06-30")
-    let daysToSubtract = 90
-    if (timeRange === "30d") {
-      daysToSubtract = 30
-    } else if (timeRange === "7d") {
-      daysToSubtract = 7
-    }
-    const startDate = new Date(referenceDate)
-    startDate.setDate(startDate.getDate() - daysToSubtract)
-    return date >= startDate
+  const [prices, setPrices] = React.useState<{ [key: string]: number }>({
+    bitcoin: 78900,
+    ethereum: 2480,
+    solana: 104,
+    cardano: 0.20,
+    tether: 1.0,
   })
 
+  // Fetch exchange rates from USD
+  React.useEffect(() => {
+    fetch("https://open.er-api.com/v6/latest/USD")
+      .then((res) => res.json())
+      .then((data) => {
+        if (data && data.rates) {
+          setExchangeRates(data.rates)
+          const newRate = data.rates[targetCurrency.code]
+          if (newRate) setLiveRate(newRate)
+        }
+      })
+      .catch((err) => console.error("Error fetching exchange rates:", err))
+  }, [])
+
+  // Sync rate when selected currency updates
+  React.useEffect(() => {
+    const rate = exchangeRates[targetCurrency.code]
+    if (rate) {
+      setLiveRate(rate)
+    }
+  }, [targetCurrency, exchangeRates])
+
+  // Generate dynamic chart points based on current exchange rate
+  const dynamicExchangeData = React.useMemo(() => {
+    const baseFluctuations = [0.993, 0.997, 0.995, 1.000, 0.998, 1.001, 0.999, 1.000]
+    const dates = ["02 Apr", "03 Apr", "04 Apr", "05 Apr", "06 Apr", "07 Apr", "08 Apr", "09 Apr"]
+    return dates.map((date, idx) => {
+      const rawRate = liveRate * baseFluctuations[idx]
+      return {
+        date,
+        rate: parseFloat(rawRate.toFixed(2)),
+      }
+    })
+  }, [liveRate])
+
+  // Automatically fit Recharts Y-axis boundaries
+  const yDomain = React.useMemo(() => {
+    const rates = dynamicExchangeData.map((d) => d.rate)
+    const min = Math.min(...rates)
+    const max = Math.max(...rates)
+    const padding = (max - min) * 0.1 || min * 0.005
+    return [parseFloat((min - padding).toFixed(2)), parseFloat((max + padding).toFixed(2))]
+  }, [dynamicExchangeData])
+
+  React.useEffect(() => {
+    // Fetch live prices from CoinGecko
+    fetch("https://api.coingecko.com/api/v3/simple/price?ids=bitcoin,ethereum,solana,cardano,tether&vs_currencies=usd")
+      .then((res) => res.json())
+      .then((data) => {
+        if (data && data.bitcoin && data.ethereum && data.solana && data.cardano && data.tether) {
+          setPrices({
+            bitcoin: data.bitcoin.usd,
+            ethereum: data.ethereum.usd,
+            solana: data.solana.usd,
+            cardano: data.cardano.usd,
+            tether: data.tether.usd,
+          })
+        }
+      })
+      .catch((err) => console.error("Error fetching CoinGecko prices:", err))
+  }, [])
+
+  // Calculate dynamic values
+  const cryptoAssetsWithValues = React.useMemo(() => {
+    const assets = assetHoldings.map((holding) => {
+      const price = prices[holding.id] || 0
+      const value = holding.amount * price
+      return {
+        ...holding,
+        value,
+      }
+    })
+
+    const totalValue = assets.reduce((sum, item) => sum + item.value, 0)
+
+    return assets.map((asset) => {
+      const percentage = totalValue > 0 ? (asset.value / totalValue) * 100 : 0
+      return {
+        ...asset,
+        percentage,
+        formattedAmount: `${asset.amount.toLocaleString(undefined, { minimumFractionDigits: asset.id === "tether" ? 2 : 6, maximumFractionDigits: asset.id === "tether" ? 2 : 6 })} ${asset.symbol}`,
+      }
+    })
+  }, [prices])
+
+  const totalUSDValue = React.useMemo(() => {
+    return cryptoAssetsWithValues.reduce((sum, item) => sum + item.value, 0)
+  }, [cryptoAssetsWithValues])
+
+  const totalBTCValue = React.useMemo(() => {
+    const btcPrice = prices.bitcoin || 1
+    return totalUSDValue / btcPrice
+  }, [totalUSDValue, prices.bitcoin])
+
+  React.useEffect(() => {
+    if (!containerRef.current) return
+
+    // Stagger entry animations
+    const panels = containerRef.current.querySelectorAll(".chart-panel-item")
+    gsap.fromTo(
+      panels,
+      {
+        opacity: 0,
+        y: 24,
+      },
+      {
+        opacity: 1,
+        y: 0,
+        duration: 0.7,
+        stagger: 0.12,
+        ease: "power2.out",
+        delay: 0.15, // stagger after KPI cards
+      }
+    )
+  }, [])
+
   return (
-    <Card className="@container/card">
-      <CardHeader>
-        <CardTitle>Asset Inflow & Volume Overview</CardTitle>
-        <CardDescription>
-          <span className="hidden @[540px]/card:block">
-            Inflow vs Outflow volume for the last 3 months
+    <div ref={containerRef} className="grid grid-cols-1 gap-6 md:grid-cols-3">
+      {/* Exchange Chart Panel */}
+      <Card className="chart-panel-item rounded-2xl border bg-card p-6 md:col-span-2 flex flex-col gap-4 opacity-0 shadow-xs hover:shadow-md transition-shadow duration-300">
+        <div className="flex items-center justify-between">
+          <div className="flex items-center gap-2">
+            <span className="text-sm font-semibold text-muted-foreground">
+              Exchange USD to {targetCurrency.name}
+            </span>
+            <DropdownMenu>
+              <DropdownMenuTrigger render={<button className="flex items-center gap-1 text-xs border rounded-lg px-2.5 py-1 bg-muted/50 cursor-pointer font-medium hover:bg-muted transition-colors text-foreground" />}>
+                {targetCurrency.code} <HugeiconsIcon icon={ChevronDownIcon} className="size-3 text-muted-foreground" />
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="start" className="w-52 bg-popover text-popover-foreground rounded-lg shadow-md border p-2 flex flex-col gap-1.5 z-50">
+                <input
+                  type="text"
+                  placeholder="Search currency..."
+                  value={currencySearchQuery}
+                  onChange={(e) => setCurrencySearchQuery(e.target.value)}
+                  className="w-full px-2 py-1 text-xs border rounded-md bg-muted/40 focus:outline-none focus:bg-background focus:border-input transition-colors duration-150"
+                  onClick={(e) => e.stopPropagation()}
+                  onKeyDown={(e) => e.stopPropagation()}
+                />
+                <DropdownMenuSeparator className="h-px bg-muted my-0.5" />
+                <DropdownMenuGroup className="max-h-48 overflow-y-auto flex flex-col gap-0.5 pr-1">
+                  <DropdownMenuLabel className="px-2 py-1 text-[10px] font-semibold text-muted-foreground">Select Currency</DropdownMenuLabel>
+                  {filteredCurrencies.length > 0 ? (
+                    filteredCurrencies.map((curr) => (
+                      <DropdownMenuItem
+                        key={curr.code}
+                        onClick={() => {
+                          setTargetCurrency(curr)
+                          setCurrencySearchQuery("")
+                        }}
+                        className="flex justify-between items-center px-2 py-1.5 text-xs rounded-sm hover:bg-accent hover:text-accent-foreground cursor-pointer"
+                      >
+                        <span>{curr.name} ({curr.code})</span>
+                        <span className="font-semibold text-muted-foreground">{curr.symbol.trim()}</span>
+                      </DropdownMenuItem>
+                    ))
+                  ) : (
+                    <div className="text-[10px] text-muted-foreground text-center py-2">No results</div>
+                  )}
+                </DropdownMenuGroup>
+              </DropdownMenuContent>
+            </DropdownMenu>
+          </div>
+          {/* Time range toggles */}
+          <div className="flex items-center gap-1 border rounded-lg p-0.5 bg-muted/30">
+            {["1D", "1W", "1M", "All"].map((range) => (
+              <button
+                key={range}
+                onClick={() => setTimeRange(range)}
+                className={`px-2.5 py-1 text-[10px] font-semibold rounded-md transition-colors cursor-pointer ${
+                  timeRange === range
+                    ? "bg-background text-foreground shadow-xs"
+                    : "text-muted-foreground hover:text-foreground"
+                }`}
+              >
+                {range}
+              </button>
+            ))}
+          </div>
+        </div>
+
+        <div className="flex flex-col">
+          <span className="text-2xl font-bold tracking-tight">
+            {targetCurrency.symbol}
+            {liveRate.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 4 })}
           </span>
-          <span className="@[540px]/card:hidden">Last 3 months</span>
-        </CardDescription>
-        <CardAction>
-          <ToggleGroup
-            multiple={false}
-            value={timeRange ? [timeRange] : []}
-            onValueChange={(value) => {
-              setTimeRange(value[0] ?? "90d")
-            }}
-            variant="outline"
-            className="hidden *:data-[slot=toggle-group-item]:px-4! @[767px]/card:flex"
-          >
-            <ToggleGroupItem value="90d">Last 3 months</ToggleGroupItem>
-            <ToggleGroupItem value="30d">Last 30 days</ToggleGroupItem>
-            <ToggleGroupItem value="7d">Last 7 days</ToggleGroupItem>
-          </ToggleGroup>
-          <Select
-            value={timeRange}
-            onValueChange={(value) => {
-              if (value !== null) {
-                setTimeRange(value)
-              }
-            }}
-          >
-            <SelectTrigger
-              className="flex w-40 **:data-[slot=select-value]:block **:data-[slot=select-value]:truncate @[767px]/card:hidden"
-              size="sm"
-              aria-label="Select a value"
-            >
-              <SelectValue placeholder="Last 3 months" />
-            </SelectTrigger>
-            <SelectContent className="rounded-xl">
-              <SelectItem value="90d" className="rounded-lg">
-                Last 3 months
-              </SelectItem>
-              <SelectItem value="30d" className="rounded-lg">
-                Last 30 days
-              </SelectItem>
-              <SelectItem value="7d" className="rounded-lg">
-                Last 7 days
-              </SelectItem>
-            </SelectContent>
-          </Select>
-        </CardAction>
-      </CardHeader>
-      <CardContent className="px-2 pt-4 sm:px-6 sm:pt-6">
-        <ChartContainer
-          config={chartConfig}
-          className="aspect-auto h-[250px] w-full"
-        >
-          <AreaChart data={filteredData}>
-            <defs>
-              <linearGradient id="fillDesktop" x1="0" y1="0" x2="0" y2="1">
-                <stop
-                  offset="5%"
-                  stopColor="var(--color-desktop)"
-                  stopOpacity={1.0}
-                />
-                <stop
-                  offset="95%"
-                  stopColor="var(--color-desktop)"
-                  stopOpacity={0.1}
-                />
-              </linearGradient>
-              <linearGradient id="fillMobile" x1="0" y1="0" x2="0" y2="1">
-                <stop
-                  offset="5%"
-                  stopColor="var(--color-mobile)"
-                  stopOpacity={0.8}
-                />
-                <stop
-                  offset="95%"
-                  stopColor="var(--color-mobile)"
-                  stopOpacity={0.1}
-                />
-              </linearGradient>
-            </defs>
-            <CartesianGrid vertical={false} />
-            <XAxis
-              dataKey="date"
-              tickLine={false}
-              axisLine={false}
-              tickMargin={8}
-              minTickGap={32}
-              tickFormatter={(value) => {
-                const date = new Date(value)
-                return date.toLocaleDateString("en-US", {
-                  month: "short",
-                  day: "numeric",
-                })
-              }}
+        </div>
+
+        {/* Recharts area chart */}
+        <div className="h-48 w-full mt-2">
+          <ResponsiveContainer width="100%" height="100%">
+            <AreaChart data={dynamicExchangeData} margin={{ left: -10, right: 10, top: 10, bottom: 0 }}>
+              <defs>
+                <linearGradient id="fillRate" x1="0" y1="0" x2="0" y2="1">
+                  <stop offset="5%" stopColor="var(--color-primary, #059669)" stopOpacity={0.2} />
+                  <stop offset="95%" stopColor="var(--color-primary, #059669)" stopOpacity={0.0} />
+                </linearGradient>
+              </defs>
+              <CartesianGrid vertical={false} strokeDasharray="3 3" stroke="var(--border)" />
+              <XAxis
+                dataKey="date"
+                tickLine={false}
+                axisLine={false}
+                tickMargin={8}
+                style={{ fontSize: "10px", fill: "var(--text-muted)" }}
+              />
+              <YAxis
+                tickLine={false}
+                axisLine={false}
+                tickMargin={8}
+                domain={yDomain}
+                tickFormatter={(val) => `${targetCurrency.symbol}${val.toLocaleString(undefined, { maximumFractionDigits: 2 })}`}
+                style={{ fontSize: "10px", fill: "var(--text-muted)" }}
+              />
+              <Tooltip
+                content={({ active, payload }) => {
+                  if (active && payload && payload.length) {
+                    return (
+                      <div className="rounded-lg border bg-background px-2.5 py-1.5 text-xs shadow-xs">
+                        <span className="font-semibold text-emerald-600">
+                          {targetCurrency.symbol}
+                          {payload[0].value?.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 4 })}
+                        </span>
+                      </div>
+                    )
+                  }
+                  return null;
+                }}
+              />
+              <Area
+                type="monotone"
+                dataKey="rate"
+                stroke="var(--color-primary, #059669)"
+                strokeWidth={2}
+                fill="url(#fillRate)"
+                activeDot={{ r: 5, fill: "var(--color-primary, #059669)", stroke: "#fff", strokeWidth: 2 }}
+              />
+            </AreaChart>
+          </ResponsiveContainer>
+        </div>
+      </Card>
+
+      {/* Crypto Balance Allocation Panel */}
+      <Card className="chart-panel-item rounded-2xl border bg-card p-6 flex flex-col gap-4 opacity-0 shadow-xs hover:shadow-md transition-shadow duration-300">
+        <div className="flex items-center justify-between">
+          <span className="text-sm font-semibold text-muted-foreground">Crypto Balance</span>
+          <a href="#" className="flex items-center gap-1 text-xs text-muted-foreground hover:text-foreground font-medium transition-colors">
+            View More <HugeiconsIcon icon={ArrowRight01Icon} className="size-3" />
+          </a>
+        </div>
+
+        <div className="flex flex-col">
+          <span className="text-xl font-bold tracking-tight">BTC {totalBTCValue.toFixed(6)}</span>
+          <span className="text-xs text-muted-foreground mt-0.5">= ${totalUSDValue.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</span>
+        </div>
+
+        {/* Custom Segmented Bar */}
+        <div className="flex h-3 w-full rounded-full overflow-hidden bg-muted mt-3">
+          {cryptoAssetsWithValues.map((asset) => (
+            <div
+              key={asset.name}
+              style={{ width: `${asset.percentage}%` }}
+              className={`${asset.barColor} transition-all duration-300`}
             />
-            <ChartTooltip
-              cursor={false}
-              content={
-                <ChartTooltipContent
-                  labelFormatter={(value) => {
-                    return new Date(value).toLocaleDateString("en-US", {
-                      month: "short",
-                      day: "numeric",
-                    })
-                  }}
-                  indicator="dot"
-                />
-              }
-            />
-            <Area
-              dataKey="mobile"
-              type="natural"
-              fill="url(#fillMobile)"
-              stroke="var(--color-mobile)"
-              stackId="a"
-            />
-            <Area
-              dataKey="desktop"
-              type="natural"
-              fill="url(#fillDesktop)"
-              stroke="var(--color-desktop)"
-              stackId="a"
-            />
-          </AreaChart>
-        </ChartContainer>
-      </CardContent>
-    </Card>
+          ))}
+        </div>
+
+        {/* Legend Grid */}
+        <div className="flex flex-col gap-3 mt-2 text-xs font-medium">
+          {cryptoAssetsWithValues.map((asset) => (
+            <div key={asset.name} className="flex items-center justify-between py-0.5">
+              <div className="flex items-center gap-2.5 text-muted-foreground">
+                <span className={`size-2.5 rounded-full ${asset.dotColor}`} />
+                <span className="font-semibold text-foreground/80">{asset.name}</span>
+              </div>
+              <span className="text-foreground font-semibold">{asset.formattedAmount}</span>
+            </div>
+          ))}
+        </div>
+      </Card>
+    </div>
   )
 }

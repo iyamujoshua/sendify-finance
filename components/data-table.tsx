@@ -96,7 +96,8 @@ import {
   TabsTrigger,
 } from "@/components/ui/tabs"
 import { HugeiconsIcon } from "@hugeicons/react"
-import { GripVerticalIcon, CircleCheckIcon, Loading01Icon, MoreVerticalIcon, Grid02Icon, ChevronDownIcon, PlusSignIcon, ChevronsLeftIcon, ChevronLeftIcon, ChevronRightIcon, ChevronsRightIcon, TrendingUpIcon } from "@hugeicons/core-free-icons"
+import { GripVerticalIcon, CircleCheckIcon, Loading01Icon, MoreVerticalIcon, Grid02Icon, ChevronDownIcon, PlusSignIcon, ChevronsLeftIcon, ChevronLeftIcon, ChevronRightIcon, ChevronsRightIcon, TrendingUpIcon, Search01Icon, FilterIcon } from "@hugeicons/core-free-icons"
+import gsap from "gsap"
 
 // New in v9: declare the features this table uses — anything you don't
 // register is tree-shaken out of the bundle.
@@ -166,7 +167,8 @@ const columns = columnHelper.columns([
       </div>
     ),
     cell: ({ row }) => (
-      <div className="flex items-center justify-center">
+      <div className="flex items-center justify-center gap-2">
+        <DragHandle id={row.original.id} />
         <Checkbox
           checked={row.getIsSelected()}
           onCheckedChange={(value) => row.toggleSelected(!!value)}
@@ -178,152 +180,77 @@ const columns = columnHelper.columns([
     enableHiding: false,
   }),
   columnHelper.accessor("header", {
-    header: "Transaction ID / User",
-    cell: ({ row }) => {
-      return <TableCellViewer item={row.original} />
-    },
-    enableHiding: false,
+    header: "Date",
+    cell: ({ row }) => (
+      <span className="text-xs text-muted-foreground font-medium">{row.original.header}</span>
+    ),
+  }),
+  columnHelper.accessor("target", {
+    header: "Name",
+    cell: ({ row }) => (
+      <span className="text-xs font-semibold text-foreground">{row.original.target}</span>
+    ),
   }),
   columnHelper.accessor("type", {
-    header: "Method / Asset",
+    header: "Type",
     cell: ({ row }) => (
-      <div className="w-32">
-        <Badge variant="outline" className="px-1.5 text-muted-foreground">
-          {row.original.type}
-        </Badge>
-      </div>
+      <span className="text-xs text-muted-foreground font-medium">{row.original.type}</span>
     ),
+  }),
+  columnHelper.accessor("limit", {
+    header: () => <div className="text-right">Amount</div>,
+    cell: ({ row }) => {
+      const isNegative = row.original.limit.startsWith("-")
+      return (
+        <div className={`text-right text-xs font-bold ${isNegative ? "text-foreground" : "text-emerald-600"}`}>
+          {row.original.limit}
+        </div>
+      )
+    },
   }),
   columnHelper.accessor("status", {
     header: "Status",
     cell: ({ row }) => {
-      const isDone = row.original.status === "Done"
-      return (
-        <Badge variant="outline" className="px-1.5 text-muted-foreground">
-          {isDone ? (
-            <HugeiconsIcon icon={CircleCheckIcon} className="size-4 fill-green-500 dark:fill-green-400" />
-          ) : (
-            <HugeiconsIcon
-              icon={Loading01Icon}
-              className="size-4 animate-spin text-muted-foreground"
-              data-icon="inline-start"
-            />
-          )}
-          {row.original.status}
-        </Badge>
-      )
-    },
-  }),
-  columnHelper.accessor("target", {
-    header: () => <div className="w-full text-right">Amount ($)</div>,
-    cell: ({ row }) => (
-      <form
-        onSubmit={(e) => {
-          e.preventDefault()
-          toast.promise(new Promise((resolve) => setTimeout(resolve, 1000)), {
-            loading: `Saving ${row.original.header}`,
-            success: "Done",
-            error: "Error",
-          })
-        }}
-      >
-        <Label htmlFor={`${row.original.id}-target`} className="sr-only">
-          Target
-        </Label>
-        <Input
-          className="h-8 w-16 border-transparent bg-transparent text-right shadow-none hover:bg-input/30 focus-visible:border focus-visible:bg-background dark:bg-transparent dark:hover:bg-input/30 dark:focus-visible:bg-input/30"
-          defaultValue={row.original.target}
-          id={`${row.original.id}-target`}
-        />
-      </form>
-    ),
-  }),
-  columnHelper.accessor("limit", {
-    header: () => <div className="w-full text-right">Fee ($)</div>,
-    cell: ({ row }) => (
-      <form
-        onSubmit={(e) => {
-          e.preventDefault()
-          toast.promise(new Promise((resolve) => setTimeout(resolve, 1000)), {
-            loading: `Saving ${row.original.header}`,
-            success: "Done",
-            error: "Error",
-          })
-        }}
-      >
-        <Label htmlFor={`${row.original.id}-limit`} className="sr-only">
-          Limit
-        </Label>
-        <Input
-          className="h-8 w-16 border-transparent bg-transparent text-right shadow-none hover:bg-input/30 focus-visible:border focus-visible:bg-background dark:bg-transparent dark:hover:bg-input/30 dark:focus-visible:bg-input/30"
-          defaultValue={row.original.limit}
-          id={`${row.original.id}-limit`}
-        />
-      </form>
-    ),
-  }),
-  columnHelper.accessor("reviewer", {
-    header: "Settlement Processor",
-    cell: ({ row }) => {
-      const isAssigned = row.original.reviewer !== "Assign reviewer"
-      if (isAssigned) {
-        return row.original.reviewer
+      const status = row.original.status
+      let badgeStyle = "bg-emerald-500/10 text-emerald-600 dark:text-emerald-400"
+      if (status === "Pending") {
+        badgeStyle = "bg-amber-500/10 text-amber-600 dark:text-amber-400"
+      } else if (status === "Failed") {
+        badgeStyle = "bg-red-500/10 text-red-600 dark:text-red-400"
       }
       return (
-        <>
-          <Label htmlFor={`${row.original.id}-reviewer`} className="sr-only">
-            Reviewer
-          </Label>
-          <Select
-            items={[
-              { label: "Eddie Lake", value: "Eddie Lake" },
-              { label: "Jamik Tashpulatov", value: "Jamik Tashpulatov" },
-            ]}
-          >
-            <SelectTrigger
-              className="w-38 **:data-[slot=select-value]:block **:data-[slot=select-value]:truncate"
-              size="sm"
-              id={`${row.original.id}-reviewer`}
-            >
-              <SelectValue placeholder="Assign reviewer" />
-            </SelectTrigger>
-            <SelectContent align="end">
-              <SelectGroup>
-                <SelectItem value="Eddie Lake">Eddie Lake</SelectItem>
-                <SelectItem value="Jamik Tashpulatov">
-                  Jamik Tashpulatov
-                </SelectItem>
-              </SelectGroup>
-            </SelectContent>
-          </Select>
-        </>
+        <Badge variant="secondary" className={`px-2.5 py-0.5 rounded-full border-0 font-semibold text-[10px] ${badgeStyle}`}>
+          {status}
+        </Badge>
       )
     },
   }),
   columnHelper.display({
     id: "actions",
+    header: () => <div className="text-right pr-2">Action</div>,
     cell: () => (
-      <DropdownMenu>
-        <DropdownMenuTrigger
-          render={
-            <Button
-              variant="ghost"
-              className="flex size-8 text-muted-foreground data-open:bg-muted"
-              size="icon"
-            />
-          }
-        >
-          <HugeiconsIcon icon={MoreVerticalIcon} />
-          <span className="sr-only">Open menu</span>
-        </DropdownMenuTrigger>
-        <DropdownMenuContent align="end" className="w-32">
-          <DropdownMenuItem>Edit</DropdownMenuItem>
-          <DropdownMenuItem>Make a copy</DropdownMenuItem>
-          <DropdownMenuItem>Favorite</DropdownMenuItem>
-          <DropdownMenuSeparator />
-          <DropdownMenuItem variant="destructive">Delete</DropdownMenuItem>
-        </DropdownMenuContent>
-      </DropdownMenu>
+      <div className="text-right pr-2">
+        <DropdownMenu>
+          <DropdownMenuTrigger
+            render={
+              <Button
+                variant="ghost"
+                className="size-8 p-0! hover:bg-muted"
+                size="icon"
+              />
+            }
+          >
+            <HugeiconsIcon icon={MoreVerticalIcon} className="size-4" />
+            <span className="sr-only">Open menu</span>
+          </DropdownMenuTrigger>
+          <DropdownMenuContent align="end" className="w-32">
+            <DropdownMenuItem>Details</DropdownMenuItem>
+            <DropdownMenuItem>Receipt</DropdownMenuItem>
+            <DropdownMenuSeparator />
+            <DropdownMenuItem variant="destructive">Delete</DropdownMenuItem>
+          </DropdownMenuContent>
+        </DropdownMenu>
+      </div>
     ),
   }),
 ])
@@ -360,6 +287,19 @@ export function DataTable({
   data: z.infer<typeof schema>[]
 }) {
   const [data, setData] = React.useState(() => initialData)
+  const [searchQuery, setSearchQuery] = React.useState("")
+  const [timeRange, setTimeRange] = React.useState("All")
+
+  React.useEffect(() => {
+    setData(initialData)
+  }, [initialData])
+
+  const filteredData = React.useMemo(() => {
+    return data.filter((item) =>
+      item.target.toLowerCase().includes(searchQuery.toLowerCase())
+    )
+  }, [searchQuery, data])
+
   const [rowSelection, setRowSelection] = React.useState({})
   const [columnVisibility, setColumnVisibility] =
     React.useState<ColumnVisibilityState>({})
@@ -371,7 +311,28 @@ export function DataTable({
     pageIndex: 0,
     pageSize: 10,
   })
+  const containerRef = React.useRef<HTMLDivElement>(null)
   const sortableId = React.useId()
+
+  React.useEffect(() => {
+    if (!containerRef.current) return
+
+    gsap.fromTo(
+      containerRef.current,
+      {
+        opacity: 0,
+        y: 24,
+      },
+      {
+        opacity: 1,
+        y: 0,
+        duration: 0.8,
+        ease: "power2.out",
+        delay: 0.28,
+      }
+    )
+  }, [])
+
   const sensors = useSensors(
     useSensor(MouseSensor, {}),
     useSensor(TouchSensor, {}),
@@ -383,7 +344,7 @@ export function DataTable({
   )
   const table = useTable({
     features,
-    data,
+    data: filteredData,
     columns,
     state: {
       sorting,
@@ -412,85 +373,48 @@ export function DataTable({
   }
   return (
     <Tabs
+      ref={containerRef}
       defaultValue="outline"
-      className="w-full flex-col justify-start gap-6"
+      className="w-full flex-col justify-start gap-6 opacity-0"
     >
-      <div className="flex items-center justify-between px-4 lg:px-6">
-        <Label htmlFor="view-selector" className="sr-only">
-          View
-        </Label>
-        <Select
-          defaultValue="outline"
-          items={[
-            { label: "All Transactions", value: "outline" },
-            { label: "High Volume Inflow", value: "past-performance" },
-            { label: "Failed Signatures", value: "key-personnel" },
-            { label: "Yield Accruals", value: "focus-documents" },
-          ]}
-        >
-          <SelectTrigger
-            className="flex w-fit @4xl/main:hidden"
-            size="sm"
-            id="view-selector"
-          >
-            <SelectValue placeholder="Select a view" />
-          </SelectTrigger>
-          <SelectContent>
-            <SelectGroup>
-              <SelectItem value="outline">All Transactions</SelectItem>
-              <SelectItem value="past-performance">High Volume Inflow</SelectItem>
-              <SelectItem value="key-personnel">Failed Signatures</SelectItem>
-              <SelectItem value="focus-documents">Yield Accruals</SelectItem>
-            </SelectGroup>
-          </SelectContent>
-        </Select>
-        <TabsList className="hidden **:data-[slot=badge]:size-5 **:data-[slot=badge]:rounded-full **:data-[slot=badge]:bg-muted-foreground/30 **:data-[slot=badge]:px-1 @4xl/main:flex">
-          <TabsTrigger value="outline">All Transactions</TabsTrigger>
-          <TabsTrigger value="past-performance">
-            High Volume Inflow <Badge variant="secondary">3</Badge>
-          </TabsTrigger>
-          <TabsTrigger value="key-personnel">
-            Failed Signatures <Badge variant="secondary">2</Badge>
-          </TabsTrigger>
-          <TabsTrigger value="focus-documents">Yield Accruals</TabsTrigger>
-        </TabsList>
-        <div className="flex items-center gap-2">
-          <DropdownMenu>
-            <DropdownMenuTrigger
-              render={<Button variant="outline" size="sm" />}
-            >
-              <HugeiconsIcon icon={Grid02Icon} data-icon="inline-start" />
-              Columns
-              <HugeiconsIcon icon={ChevronDownIcon} data-icon="inline-end" />
-            </DropdownMenuTrigger>
-            <DropdownMenuContent align="end" className="w-32">
-              {table
-                .getAllColumns()
-                .filter(
-                  (column) =>
-                    typeof column.accessorFn !== "undefined" &&
-                    column.getCanHide()
-                )
-                .map((column) => {
-                  return (
-                    <DropdownMenuCheckboxItem
-                      key={column.id}
-                      className="capitalize"
-                      checked={column.getIsVisible()}
-                      onCheckedChange={(value) =>
-                        column.toggleVisibility(!!value)
-                      }
-                    >
-                      {column.id}
-                    </DropdownMenuCheckboxItem>
-                  )
-                })}
-            </DropdownMenuContent>
-          </DropdownMenu>
-          <Button variant="outline" size="sm">
-            <HugeiconsIcon icon={PlusSignIcon} />
-            <span className="hidden lg:inline">Create Transaction</span>
-          </Button>
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between px-6 py-4 gap-4 border-b border-border/50">
+        <span className="text-base font-bold text-foreground">Transaction</span>
+
+        <div className="flex flex-wrap items-center gap-3">
+          {/* Search bar */}
+          <div className="relative">
+            <HugeiconsIcon icon={Search01Icon} className="absolute left-3 top-1/2 -translate-y-1/2 size-4 text-muted-foreground" />
+            <input
+              type="text"
+              placeholder="Search Transaction"
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              className="pl-9 pr-4 py-1.5 bg-muted/50 rounded-xl text-xs border border-transparent focus:outline-none focus:bg-background focus:border-input transition-colors duration-150 w-48"
+            />
+          </div>
+
+          {/* Time range toggles */}
+          <div className="flex items-center gap-1 border rounded-lg p-0.5 bg-muted/30">
+            {["1D", "1W", "1M", "All"].map((range) => (
+              <button
+                key={range}
+                onClick={() => setTimeRange(range)}
+                className={`px-2.5 py-1 text-[10px] font-semibold rounded-md transition-colors cursor-pointer ${
+                  timeRange === range
+                    ? "bg-background text-foreground shadow-xs"
+                    : "text-muted-foreground hover:text-foreground"
+                }`}
+              >
+                {range}
+              </button>
+            ))}
+          </div>
+
+          {/* Filter button */}
+          <button className="flex items-center gap-1.5 text-xs font-semibold border rounded-lg px-3 py-1.5 bg-background hover:bg-muted transition-colors cursor-pointer text-foreground/80">
+            <HugeiconsIcon icon={FilterIcon} className="size-3.5" />
+            <span>Filter</span>
+          </button>
         </div>
       </div>
       <TabsContent
