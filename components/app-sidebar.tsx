@@ -1,7 +1,7 @@
 "use client"
 
 import * as React from "react"
-import { ThemeToggle } from "@/components/theme-toggle"
+import { ThemeToggleIcon, useThemeToggle } from "@/components/theme-toggle"
 import {
   Sidebar,
   SidebarContent,
@@ -80,6 +80,21 @@ const data = {
       icon: <HugeiconsIcon icon={UserGroupIcon} className="size-4" />,
     },
   ],
+}
+
+function ThemeMenuItem() {
+  const toggleTheme = useThemeToggle()
+
+  return (
+    <SidebarMenuButton
+      tooltip="Theme"
+      onClick={toggleTheme}
+      className="flex items-center gap-3 px-3 py-2 rounded-lg transition-all duration-200 ease-out hover:translate-x-1 cursor-pointer"
+    >
+      <ThemeToggleIcon />
+      <span className="text-[13px]">Theme</span>
+    </SidebarMenuButton>
+  )
 }
 
 export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
@@ -171,13 +186,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
                   </SidebarMenuItem>
                 ))}
                 <SidebarMenuItem>
-                  <SidebarMenuButton
-                    tooltip="Theme"
-                    className="flex items-center gap-3 px-3 py-2 rounded-lg transition-all duration-200 ease-out hover:translate-x-1"
-                  >
-                    <ThemeToggle />
-                    <span className="text-[13px]">Theme</span>
-                  </SidebarMenuButton>
+                  <ThemeMenuItem />
                 </SidebarMenuItem>
               </SidebarMenu>
             </SidebarGroupContent>
